@@ -1,0 +1,46 @@
+trigger: none
+pr: none
+
+stages:
+- stage: CI
+  pool:
+    vmImage: ubuntu-latest
+  jobs:
+  - job: CI_JOB
+    steps:
+      - checkout: none
+      - bash: echo "DO CI NOW PLEASE"
+
+- stage: manual_stage
+  pool:
+    vmImage: 'ubuntu-latest'
+  dependsOn: [CI]
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+    - job: working_job
+      steps:
+        - checkout: none
+        - bash: echo $(Build.SourceBranch)
+
+- stage: enabled_branch_stage
+  pool:
+    vmImage: 'ubuntu-latest'
+  dependsOn: [CI]
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+    - job: enable_branch_job
+      steps:
+        - checkout: none
+        - bash: echo $(Build.SourceBranch)
+
+
+
+- stage: skipped_branch_stage
+  pool:
+    vmImage: 'ubuntu-latest'  
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+    - job: skipped_branch_job
+      steps:
+      - checkout: none
+      - bash: echo $(Build.SourceBranch)
